@@ -82,6 +82,12 @@ autoplot(volcamiento, ts.colour = "blue", cpt.linetype = "solid")
 
 
 ```
+## ACtividades faltandes:
+- analsis exploratorio.
+- graficar accidentes por barrio, comuna
+- Dividir la data (entrenaiento,test).
+- Crear modelos.(knn)
+- 
 
 
 
