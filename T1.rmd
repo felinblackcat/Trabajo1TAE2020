@@ -1,0 +1,34 @@
+---
+title: "TAE"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Leyendo Datos csv
+
+```{r}
+datos <- read.table("datos_proscesados.csv",
+                    dec=".",sep=",", header=TRUE)
+```
+Los datos se ven así:
+
+```{r}
+head(datos)
+```
+## Filtro de datos
+Se omitiran las columnas: X,Y,OBJECTID,RADICADO,FECHA,DIRECCION_ENC,diseno,x_magnamed,y_magnamed
+shape, aux_b, aux_c
+```{r}
+library(dplyr)
+FiltroColumnas <-select(datos,X,Y,PERIODO,MES,DIA,HORA,CLASE,DIRECCION,CBML,TIPO_GEOCOD,GRAVEDAD,BARRIO,COMUNA)
+FiltroColumnas
+```
+## Agrupar por año
+```{r}
+group_by(FiltroColumnas,BARRIO) 
+```
+
+
