@@ -23,7 +23,7 @@ Se omitiran las columnas: X,Y,OBJECTID,RADICADO,FECHA,DIRECCION_ENC,diseno,x_mag
 shape, aux_b, aux_c
 ```{r}
 library(dplyr)
-FiltroColumnas <-select(datos,X,Y,PERIODO,MES,DIA,HORA,CLASE,DIRECCION,CBML,TIPO_GEOCOD,GRAVEDAD,BARRIO,COMUNA)
+FiltroColumnas <-select(datos,LONGITUD,LATITUD,PERIODO,MES,DIA,HORA,CLASE,DIRECCION,CBML,TIPO_GEOCOD,GRAVEDAD,BARRIO,COMUNA)
 FiltroColumnas
 ```
 
@@ -41,9 +41,10 @@ FiltroColumnas$FullFecha <- fechas
 ## Agrupar por año
 ```{r}
 Data <- group_by(FiltroColumnas,FullFecha) %>% count(CLASE)
-
+serie6 <- group_by(FiltroColumnas,FullFecha) %>% count(FullFecha)
+names(serie6)[names(serie6) == 'n'] <- 'CantidadAccidentesPorFecha'
 names(Data)[names(Data) == 'n'] <- 'CantidadAccidentesPorTipo'
-Data
+serie6
 
 ```
 ## Sacando las 6 series de tiempo
@@ -53,6 +54,7 @@ serie2 <- filter(Data,CLASE=='caida ocupante')
 serie3 <- filter(Data,CLASE=='choque')
 serie4 <- filter(Data,CLASE=='otro')
 serie5 <- filter(Data,CLASE=='volcamiento')
+
 serie1
 
 ```
@@ -77,7 +79,8 @@ autoplot(otro, ts.colour = "blue", cpt.linetype = "solid")
 volcamiento<-ts(serie5$CantidadAccidentesPorTipo, start = c(2014,1), end=c(2019,1),frequency = 12)
 autoplot(volcamiento, ts.colour = "blue", cpt.linetype = "solid")
 
-
+ggrafica6<-ts(serie6$CantidadAccidentesPorFecha, start = c(2014,1), end=c(2019,1),frequency = 12)
+autoplot(ggrafica6, ts.colour = "blue", cpt.linetype = "solid")
 
 
 
@@ -87,8 +90,28 @@ autoplot(volcamiento, ts.colour = "blue", cpt.linetype = "solid")
 - graficar accidentes por barrio, comuna
 - Dividir la data (entrenaiento,test).
 - Crear modelos.(knn)
-- 
 
+## 31/10/2020 
+ - Series de tiempo de cada barrio agrupan mes ceuntan cada tipo de atropello.
+ - Cluesterizacion con esas series, predicion por barrio.
+ - Modelos:
+  * Dia 
+  * Año
+  * Mes
+Entrada: (ventana de tiempo: historico accidentes; prediccion: accidentalidad por tipo de accidente, ventana temporal(rango fechas), resolucion temporal (dia,semana,mes);grupos de barrio en mapa.(colores diferentes.) )
+ 
+
+```{r}
+dataCluster <- group_by(FiltroColumnas,FullFecha,BARRIO) %>% count(CLASE)
+names(dataCluster)[names(dataCluster) == 'n'] <- 'CantidadAccidentesPorFecha'
+dataCluster
+```
+# Actividades:
+## Referencia: http://r-es.org/9jornadasR/pdf/9JUR_paper_24.pdf
+- Cluster
+- Dia 
+- Año
+- Mes
 
 
 
