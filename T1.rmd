@@ -108,12 +108,15 @@ dataCluster
 ```
 # Actividades:
 ## Referencia: http://r-es.org/9jornadasR/pdf/9JUR_paper_24.pdf
-- Cluster
-- Dia 
-- Año
-- Mes
+- Series de los barrios:Ana
+- Dia: Tacho: (cluster)
+- semana: (Jorge)
+- Mes: (Andres)
 
-
+(regresion lineal, cbm, red neuronal)
+- Predictivo(dia)
+- Predictivo(semana)
+- Predictivo(mes)
 
 
 
