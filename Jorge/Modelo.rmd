@@ -1,0 +1,123 @@
+---
+title: "TAE"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Leyendo Datos csv
+
+```{r}
+datos <- read.table("../datos_proscesados.csv",
+                    dec=".",sep=",", header=TRUE)
+```
+Los datos se ven así:
+
+```{r}
+head(datos)
+```
+## Filtro de datos
+Se omitiran las columnas: X,Y,OBJECTID,RADICADO,FECHA,DIRECCION_ENC,diseno,x_magnamed,y_magnamed
+shape, aux_b, aux_c
+```{r}
+library(dplyr)
+FiltroColumnas <-select(datos,LONGITUD,LATITUD,PERIODO,MES,DIA,HORA,CLASE,DIRECCION,CBML,TIPO_GEOCOD,GRAVEDAD,BARRIO,COMUNA)
+FiltroColumnas
+```
+
+## Organizar año, mes y dia en una sola fecha
+
+```{r}
+fechas<-apply(cbind(FiltroColumnas$PERIODO,FiltroColumnas$MES,FiltroColumnas$DIA),1,paste,collapse="-")
+fechas<-as.Date(fechas,"%Y-%m-%d")
+
+```
+## Anexamos esta nueva columna a la data
+```{r}
+FiltroColumnas$FullFecha <- fechas
+```
+## Agrupar por año
+```{r}
+Data <- group_by(FiltroColumnas,FullFecha) %>% count(CLASE)
+serie6 <- group_by(FiltroColumnas,FullFecha) %>% count(FullFecha)
+names(serie6)[names(serie6) == 'n'] <- 'CantidadAccidentesPorFecha'
+names(Data)[names(Data) == 'n'] <- 'CantidadAccidentesPorTipo'
+serie6
+
+```
+## Sacando las 6 series de tiempo
+```{r}
+serie1 <- filter(Data,CLASE=='atropello')
+serie2 <- filter(Data,CLASE=='caida ocupante')
+serie3 <- filter(Data,CLASE=='choque')
+serie4 <- filter(Data,CLASE=='otro')
+serie5 <- filter(Data,CLASE=='volcamiento')
+
+serie1
+
+```
+##Graficnado las series de tiempo
+```{r}
+library(tseries)
+library(ggfortify)
+#Falta organizar que las graficas queden en una sola.
+
+Atropello<-ts(serie1$CantidadAccidentesPorTipo, start = c(2014,1), end=c(2019,1),frequency = 12)
+autoplot(Atropello, ts.colour = "red",cpt.linetype = "solid")
+
+CaidaOcupante<-ts(serie2$CantidadAccidentesPorTipo, start = c(2014,1), end=c(2019,1),frequency = 12)
+autoplot(CaidaOcupante, ts.colour = "blue", cpt.linetype = "solid")
+
+choque<-ts(serie3$CantidadAccidentesPorTipo, start = c(2014,1), end=c(2019,1),frequency = 12)
+autoplot(choque, ts.colour = "purple", cpt.linetype = "solid")
+
+otro<-ts(serie4$CantidadAccidentesPorTipo, start = c(2014,1), end=c(2019,1),frequency = 12)
+autoplot(otro, ts.colour = "blue", cpt.linetype = "solid")
+
+volcamiento<-ts(serie5$CantidadAccidentesPorTipo, start = c(2014,1), end=c(2019,1),frequency = 12)
+autoplot(volcamiento, ts.colour = "blue", cpt.linetype = "solid")
+
+ggrafica6<-ts(serie6$CantidadAccidentesPorFecha, start = c(2014,1), end=c(2019,1),frequency = 12)
+autoplot(ggrafica6, ts.colour = "blue", cpt.linetype = "solid")
+
+
+
+```
+## ACtividades faltandes:
+- analsis exploratorio.
+- graficar accidentes por barrio, comuna
+- Dividir la data (entrenaiento,test).
+- Crear modelos.(knn)
+
+## 31/10/2020 
+ - Series de tiempo de cada barrio agrupan mes ceuntan cada tipo de atropello.
+ - Cluesterizacion con esas series, predicion por barrio.
+ - Modelos:
+  * Dia 
+  * Año
+  * Mes
+Entrada: (ventana de tiempo: historico accidentes; prediccion: accidentalidad por tipo de accidente, ventana temporal(rango fechas), resolucion temporal (dia,semana,mes);grupos de barrio en mapa.(colores diferentes.) )
+ 
+
+```{r}
+dataCluster <- group_by(FiltroColumnas,FullFecha,BARRIO) %>% count(CLASE)
+names(dataCluster)[names(dataCluster) == 'n'] <- 'CantidadAccidentesPorFecha'
+dataCluster
+```
+# Actividades:
+## Referencia: http://r-es.org/9jornadasR/pdf/9JUR_paper_24.pdf
+- Series de los barrios:Ana
+- Dia: Tacho: (cluster)
+- semana: (Jorge)
+- Mes: (Andres)
+
+(regresion lineal, cbm, red neuronal)
+- Predictivo(dia)
+- Predictivo(semana)
+- Predictivo(mes)
+
+
+
+
