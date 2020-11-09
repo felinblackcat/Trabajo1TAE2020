@@ -7,6 +7,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
 ## Leyendo Datos csv
 
 ```{r}
@@ -117,6 +118,43 @@ dataCluster
 - Predictivo(dia)
 - Predictivo(semana)
 - Predictivo(mes)
+
+(AppWeb)
+berlin
+las mercedes
+doce de octubre no.2
+# series de tiempo de barrios
+#berlin <- group_by(FiltroColumnas,FullFecha) %>% count(CLASE)
+```{r}
+berlin<-filter(FiltroColumnas,BARRIO=='berlin')
+las_mercedes<-filter(FiltroColumnas,BARRIO=='las mercedes')
+doce_de_octubre_no.2<-filter(FiltroColumnas,BARRIO=='doce de octubre no.2')
+
+serieberlin <- group_by(berlin,FullFecha,COMUNA) %>% count(CLASE)
+names(serieberlin)[names(serieberlin) == 'n'] <- 'CantidadAccidentesPorFecha'
+
+serielas_mercedes <- group_by(las_mercedes,FullFecha,COMUNA) %>% count(CLASE)
+names(serielas_mercedes)[names(serielas_mercedes) == 'n'] <- 'CantidadAccidentesPorFecha'
+
+seriedoce_de_octubre_no.2 <- group_by(doce_de_octubre_no.2,FullFecha,COMUNA) %>% count(CLASE)
+names(seriedoce_de_octubre_no.2)[names(seriedoce_de_octubre_no.2) == 'n'] <- 'CantidadAccidentesPorFecha'
+
+ggraficaberlin<-ts(serieberlin$CantidadAccidentesPorFecha, start = c(2014,1), end=c(2019,1),frequency = 12)
+autoplot(ggraficaberlin, ts.colour = "blue", cpt.linetype = "solid")
+
+ggraficaserielas_mercedes<-ts(serielas_mercedes$CantidadAccidentesPorFecha, start = c(2014,1), end=c(2019,1),frequency = 12)
+autoplot(ggraficaserielas_mercedes, ts.colour = "blue", cpt.linetype = "solid")
+
+ggraficadoce_de_octubre_no.2<-ts(seriedoce_de_octubre_no.2$CantidadAccidentesPorFecha, start = c(2014,1), end=c(2019,1),frequency = 12)
+autoplot(ggraficadoce_de_octubre_no.2, ts.colour = "blue", cpt.linetype = "solid")
+
+library(TSclust)
+data(synthetic.tseries)
+typeof(synthetic.tseries)
+synthetic.tseries
+```
+
+
 
 
 
