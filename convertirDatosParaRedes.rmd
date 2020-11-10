@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Leyendo Datos csv
 
 ```{r}
-datos <- read.table("../datos_proscesados.csv",
+datos <- read.table("datos_proscesados.csv",
                     dec=".",sep=",", header=TRUE)
 head(datos)
 
@@ -46,7 +46,7 @@ matrix_guardar<-cbind(matrix_guardar,matrix_tiposBinaria)
 #da=cbind(with(df, model.matrix(~ BARRIO+ 0)))
 #da=model.matrix(~ BARRIO+CLASE,data=df)
 
-write.csv(matriz_fechas,"../datosParaRed.csv", row.names = FALSE)
+write.csv(matrix_guardar,"datosParaRed.csv", row.names = FALSE)
 
 
 ```
