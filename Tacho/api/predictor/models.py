@@ -7,8 +7,7 @@ class Predictor(models.Model):
         ('m','Mes'),
         ('s','Semana')    
     ]
-    choiceModels = [
-        ('SVM','SoporteVectorial'),
+    choiceModels = [        
         ('RF','BosquesAleatorios')
     ]
     fecha_inicial = models.DateField()
