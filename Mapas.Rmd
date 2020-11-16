@@ -1,6 +1,6 @@
 ---
 title: "abrir mapas"
-author: "Jorge"
+author: "Jorge"rr
 date: "4/11/2020"
 output: html_document
 ---
@@ -21,8 +21,11 @@ When you click the **Knit** button a document will be generated that includes bo
 
 
 ```{r}
+
 library(sf)
-cc <- st_read("mapas/Barrio_Vereda.shp") # use this code to add your shapefile from your local directory
+library(leaflet)
+
+cc <- st_read("mapas/Barrio_Vereda.shp")
 leaflet(width = "100%")%>% addTiles(attribution = "overlay data© mapsnigeriainitiative 2016")%>% setView(-75.60272578, 6.21901553, 11) %>%  # add the default basemap along with setting the view (lng, lat) and initial zoom 
    addPolygons(data = cc, fill=TRUE, stroke = TRUE, color = "red", popup = paste0("Name:",cc$NOMBRE,"<br>", "Pop:", cc$total))
 
