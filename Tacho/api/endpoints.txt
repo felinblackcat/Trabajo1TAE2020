@@ -1,1 +1,2 @@
-http://127.0.0.1:8000/Predictor/predecir/
+
+https://jor45458.pythonanywhere.com/Predictor/predecir/
