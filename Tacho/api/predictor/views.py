@@ -141,7 +141,62 @@ def PrepararData(data,fechas_especiales):
                                         }
                                     }
                            }
-        return(resultado_front)
+    elif(data['resoluciontemporal']=='s'):       
+        inicial = datetime.strptime(data['fecha_inicial'].replace('-','/'), '%Y/%m/%d')
+        final = datetime.strptime(data['fecha_final'].replace('-','/'), '%Y/%m/%d')
+        rango = final-inicial
+        #formatox = ['Barrio_encoder','DIA','MES','Año','Especial']
+        
+        Matrix= []
+        
+        
+            #dia mes anio especial cluster semana
+        for i in range(0,rango.days+1):        
+            fecha = inicial+timedelta(days=i)
+            cluster1 = 0
+            cluster2 = 1
+            cluster3 = 2
+            dia = fecha.day
+            dia_semana = fecha.weekday()
+            mes = fecha.month
+            anio = fecha.year
+            especial = know_special(anio,dia,mes,fechas_especiales)
+            semana = week_of_month(fecha)                
+            Matrix.append([float(anio),cluster1,cluster2,cluster3,float(semana)])
+            
+        marray = pd.DataFrame(Matrix)
+        marray = marray.drop_duplicates([4])
+        resultado = pd.DataFrame(bosque_semana.predict(marray.values))
+        
+        resultado_front = {
+        
+                           'Resultado':{ 
+                                        
+                                       'Atropello':round(resultado[0].sum(),0),
+                                       'CaidaOcupante':round(resultado[1].sum(),0),
+                                       'Choque':round(resultado[2].sum(),0),
+                                       'Otro':round(resultado[3].sum(),0),
+                                       'volcamiento':round(resultado[4].sum(),0),
+                                       },
+                           'Modelo':{
+                               'nombre':'Random Forest',
+                               'ImportanciaVariables':{
+                                   'Barrio peligro bajo':0.95,
+                                   'DIA_SEMANA':0.09,
+                                   'ESPECIAL':0.04,
+                                   'Barrio peligro moderado':0.02,
+                                   'Barrio peligro Alto':0.02,                                   
+                                   'SEMANA':0.01,
+                                   'ANIO': 0.0,
+                                   },                                  
+                                   
+                               'Errores':{   
+                                           'error_validacion': 325.29153465889914,
+                                           'erro_prueba': 293.12953247210106,
+                                        } 
+                                    }
+                           }
+    return(resultado_front)
 
     
 class PredictorViewSet(viewsets.ModelViewSet):    
