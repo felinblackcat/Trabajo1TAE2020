@@ -5,7 +5,8 @@ from predictor.serializers import PredictorSerializer
 from predictor.models import Predictor
 from rest_framework.decorators import action
 import joblib
-from datetime import datetime,timedelta
+from datetime import datetime,timedelta,date
+import dateutil.relativedelta
 import numpy as np
 import pandas as pd
 import os
@@ -24,6 +25,7 @@ bosque_semana = joblib.load(ROOT_DIR+'/modelos/arbol_semana.pkl')
 fechas_especiales = pd.read_excel(ROOT_DIR+"/data/fechas_especiales.xlsx")
 clustering = pd.read_excel(ROOT_DIR+"/data/clustering.xlsx")
 
+
 def week_of_month(tgtdate):
     anio_inicio = datetime.strptime('2014/01/01', '%Y/%m/%d')    
     return math.ceil(((tgtdate - anio_inicio).days-4) /7)
@@ -38,8 +40,7 @@ def know_special(anio,dia,mes,fecha_especiales):
     return(especial)
 
 def PrepararData(data,fechas_especiales):
-    if(data['resoluciontemporal']=='d'):   
-        print(data)
+    if(data['resoluciontemporal']=='d'):       
         inicial = datetime.strptime(data['fecha_inicial'].replace('-','/'), '%Y/%m/%d')
         final = datetime.strptime(data['fecha_final'].replace('-','/'), '%Y/%m/%d')
         rango = final-inicial
@@ -89,6 +90,54 @@ def PrepararData(data,fechas_especiales):
                                'Errores':{   
                                            'error_validacion': 11.350853964079027,
                                            'erro_prueba': 11.098365715779519,
+                                        }
+                                    }
+                           }
+    elif(data['resoluciontemporal']=='m'):   
+        
+        inicial = datetime.strptime(data['fecha_inicial'].replace('-','/'), '%Y/%m/%d')
+        final = datetime.strptime(data['fecha_final'].replace('-','/'), '%Y/%m/%d')
+        rango = (final.year - inicial.year) * 12 + (final.month - inicial.month)
+        #formatox = ['Barrio_encoder','DIA','MES','Año','Especial']
+        print(rango)
+        Matrix= []       
+        
+        #dia mes anio especial cluster semana
+        for i in range(0,rango+1):        
+            fecha = inicial - dateutil.relativedelta.relativedelta(months=1) 
+            cluster1 = 0
+            cluster2 = 1
+            cluster3 = 2                       
+            mes = fecha.month
+            anio = fecha.year                            
+            Matrix.append([float(mes),float(anio),cluster1,cluster2,cluster3])
+            
+        marray = pd.DataFrame(Matrix)
+        resultado = pd.DataFrame(bosque_mes.predict(marray.values))
+        
+        resultado_front = {
+        
+                           'Resultado':{ 
+                                       'Atropello':round(resultado[0].sum(),0),
+                                       'CaidaOcupante':round(resultado[1].sum(),0),
+                                       'Choque':round(resultado[2].sum(),0),
+                                       'Otro':round(resultado[3].sum(),0),
+                                       'volcamiento':round(resultado[4].sum(),0),
+                                       },
+                           'Modelo':{
+                               'nombre':'Random Forest',
+                               'ImportanciaVariables':{
+                                   'Barrio peligro bajo':0.93,
+                                   'DIA_SEMANA':0.09,
+                                   'ESPECIAL':0.04,
+                                   'Barrio peligro moderado':0.05,
+                                   'Barrio peligro Alto':0.02,
+                                   'MES':0.0,                                   
+                                   'ANIO': 0.0,
+                                   },
+                               'Errores':{  
+                                           'error_validacion': 1199.1679222686375,
+                                           'erro_prueba': 1243.219178929076,
                                         }
                                     }
                            }
