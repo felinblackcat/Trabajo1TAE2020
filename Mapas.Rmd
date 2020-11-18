@@ -34,7 +34,7 @@ barriosShape <- readOGR(
   verbose=TRUE
 )
 
-geoData<-read.csv("Jorge/convertirGeodata/geoDataframe_cluster.csv",sep =';')
+geoData<-read.csv("Jorge/convertirGeodata/geoDataframe_temporal.csv",sep =';')
 
 barriosShape@data<-geoData
 
@@ -60,13 +60,15 @@ print(class(barriosShape))
 ```{r}
 library(dplyr)
 barriosShape$numerica <- as.numeric(barriosShape@data$CLUSTER)
+
 # Variable categorica
-barriosShape$numerica <- case_when(barriosShape$numerica == 0 ~ "Estado feo", barriosShape$numerica == 1 ~ "Estado regular", barriosShape$numerica == 2 ~ "Estado bonito", barriosShape$numerica == 3 ~ "Estado hermoso")
+barriosShape$categorica <- case_when(barriosShape$numerica == 0 ~ "peligro moderado", barriosShape$numerica == 1 ~ "peligro bajo", barriosShape$numerica == 2 ~ "peligro alto", barriosShape$numerica == 3 ~ "no agrupado")
 ```
 ```{r}
 library('BBmisc')
+
 #dat <- barriosShape.numerica(x = rnorm(10, 30, .2), y = runif(10, 3, 5))
-norm<-normalize(barriosShape$numerica, method = "standardize", range = c(0, 1), margin = 1L, on.constant = "quiet")
+#norm<-normalize(barriosShape$numerica, method = "standardize", range = c(0, 1), margin = 1L, #on.constant = "quiet")
 
 
 ```
@@ -74,15 +76,15 @@ norm<-normalize(barriosShape$numerica, method = "standardize", range = c(0, 1), 
 
 ```{r}
 library(viridis)  # paletas de colores
-palnumeric <- colorNumeric("viridis", c(0,4))
+palnumeric <- colorNumeric("viridis", c(0,3))
 ```
 ###POP up
 ```{r}
-popup <- paste0("<b>", "Nombre estado: ", "</b>", as.character(barriosShape$NOMBRE), 
+popup <- paste0("<b>", "Nombre del barrio: ", "</b>", as.character(barriosShape$NOMBRE), 
     "<br>", "<b>", "Capital: ", "</b>", as.character("hola"), "<br>", 
     "<b>", "Area: ", "</b>", "dsa", "<br>", "<b>", 
     "Num. Aleatorio ", "</b>", "specify_decimal", "<br>", "<b>", 
-    "Tipo de Estado: ", "</b>", "dasd", "<br>")
+    "Grupo al que pertenece: ", "</b>", as.character(barriosShape$categorica), "<br>")
 ```
 ###Creat mapa
 
@@ -99,15 +101,13 @@ leaflet(barriosShape) %>%
               smoothFactor = 0.5,
               opacity = 1.0,
               fillOpacity = 0.5,
-              fillColor = ~palnumeric(barriosShape$numerica),    # Color de llenado
+              fillColor = case_when(barriosShape$numerica != 3 ~palnumeric(barriosShape$numerica)),    # Color de llenado
               highlightOptions = highlightOptions(color = "white", weight = 2,
                                                   bringToFront = TRUE), #highlight cuando pasas el cursor
               label = ~barriosShape$NOMBRE ,                                  # etiqueta cuando pasas el cursor
               labelOptions = labelOptions(direction = "auto"),
-              popup = popup) %>%                                        # mostrar el popup
-  
-  addLegend(position = "topright", pal = palnumeric, values = ~as.integer( barriosShape$numerica),
-            title = "Suerte del Estado")  
+              popup = popup)%>%addTiles(attribution = "overlay data© mapsnigeriainitiative 2016")
+
 ```
 
 
