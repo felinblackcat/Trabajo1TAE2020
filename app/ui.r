@@ -47,6 +47,8 @@ body <- dashboardBody(
     tabItem("predictivo",
             fluidRow(box(h4("Ventana Temporal"))),
             fluidRow(box(dateInput("fecha_inicio", "Inicio:",startview = "decade"),width=4),box(dateInput("fecha_fin", "Fin:",startview = "decade"),width = 4)),
+            fluidRow(box(selectInput("Resoluciontemporal", "Resoluciontemporal:",c("Dia" = "d","Mes" = "m","Semana" = "s")),width=4)),
+            fluidRow(box(submitButton("Predecir", icon("refresh")),width=4)),
             
     )
 
