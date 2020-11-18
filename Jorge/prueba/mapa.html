@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta name="description" content="">
+		<meta name="author" content="">
+		<title>Accidentap</title>
+		<!-- Custom fonts for this template -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<link rel="stylesheet" href="https://js.arcgis.com/3.20/dijit/themes/claro/claro.css">
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/fileupload.css">
+    <link rel="stylesheet" href="https://js.arcgis.com/3.20/esri/css/esri.css">
+	</head>
+	<body>
+
+
+    <script src="https://js.arcgis.com/3.20/">
+	
+</script>
+
+
+<form enctype="multipart/form-data" method="post" id="uploadForm">
+              <div class="field">
+                  <label class="file-upload">
+                      <!-- <span><strong>Choose File</strong></span> -->
+					  <!-- <span align = "center"><Add Shapefile></span> -->
+					  <Label style="font-weight: bold; align = center ">Add Shapefile</label><br></br>
+                      <input type="file" name="file" id="inFile" />
+                  </label>
+              </div>
+              </form>
+              <span class="file-upload-status" style="opacity:1;" id="upload-status"></span>
+              <div id="fileInfo">&nbsp;</div>
+        </div>
+        </div>
+    <div id="mapCanvas" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'center'"></div>
+</body>
+<script>
+ var map;
+
+      require([
+        "esri/config",
+        "esri/InfoTemplate",
+        "esri/map",
+        "esri/request",
+        "esri/geometry/scaleUtils",
+        "esri/layers/FeatureLayer",
+        "esri/renderers/SimpleRenderer",
+        "esri/symbols/PictureMarkerSymbol",
+        "esri/symbols/SimpleFillSymbol",
+        "esri/symbols/SimpleLineSymbol",
+        "dojo/dom",
+        "dojo/json",
+        "dojo/on",
+        "dojo/parser",
+        "dojo/sniff",
+        "dojo/_base/array",
+        "esri/Color",
+        "dojo/_base/lang",
+        "dijit/layout/BorderContainer",
+        "dijit/layout/ContentPane",
+        "dojo/domReady!"
+      ],
+        function (
+        esriConfig, InfoTemplate, Map, request, scaleUtils, FeatureLayer,
+        SimpleRenderer, PictureMarkerSymbol, SimpleFillSymbol, SimpleLineSymbol,
+        dom, JSON, on, parser, sniff, arrayUtils, Color, lang
+      ) {
+
+          parser.parse();
+
+var portalUrl = "https://www.arcgis.com";
+
+          esriConfig.defaults.io.proxyUrl = "/proxy/";
+		  on(dojo.byId("uploadForm"), "change", function (event) {
+            var fileName = event.target.value.toLowerCase();
+		  
+		  <!-- if (sniff("ie")) { //filename is full path in IE so extract the file name -->
+              <!-- var arr = fileName.split("\\"); -->
+              <!-- fileName = arr[arr.length - 1]; -->
+            <!-- } -->
+            if (fileName.indexOf(".zip") !== -1) {//is file a zip - if not notify user
+              generateFeatureCollection(fileName);
+            }
+            else {
+              alert("Add shapefile as .zip file");
+            }
+          });
+		  
+       map = new Map("mapCanvas", {
+            basemap: "gray",
+            center: [-41.647, 36.41],
+            zoom: 3,
+            slider: false
+          });
+		  
+		  function generateFeatureCollection (fileName) {
+            var name = fileName.split(".");
+			name = name[0].replace("c:\\fakepath\\", "");
+            console.log(name);
+			var params = {
+              'name': name,
+              'targetSR': map.spatialReference,
+              'maxRecordCount': 1000,
+              'enforceInputFileSizeLimit': true,
+              'enforceOutputJsonSizeLimit': true
+            };
+           
+			//var extent = scaleUtils.getExtentForScale(map, 40000);
+			var extent = esri.geometry.getExtentForScale(map, 40000);
+            var resolution = extent.getWidth() / map.width;
+            params.generalize = true;
+            params.maxAllowableOffset = resolution;
+            params.reducePrecision = true;
+            params.numberOfDigitsAfterDecimal = 0;
+           
+		   
+            var myContent = {
+              'filetype': 'shapefile',
+              'publishParameters': JSON.stringify(params),
+              'f': 'JSON',
+              'callback.html': 'textarea'
+            };
+			
+			esriRequest({
+              url: portalUrl + '/sharing/rest/content/features/generate',
+              content: myContent,
+               form: dojo.byId('uploadForm'),
+              handleAs: 'json',
+              load: lang.hitch(this, function (response) {
+                if (response.error) {
+                  errorHandler(response.error);
+                  return;
+                }
+				var featureCollection = {
+          "layerDefinition": null,
+          "featureSet": {
+            "features": [],
+            "geometryType": "esriGeometryPoint"
+          }
+        };
+                var layerName = response.featureCollection.layers[0].layerDefinition.name;
+                
+                addShapefileToMap(response.featureCollection);
+              }),
+             //error: lang.hitch(this, errorHandler)
+            });
+          }
+		  
+		  function addShapefileToMap (featureCollection) {
+           
+            var fullExtent;
+            var layers = [];
+
+           array.forEach(featureCollection.layers, function (layer) {
+			//for(var i = 0 ; i<=featureCollection.layers.length ; i++){
+			//featureCollection.layers.forEach(function(layer){
+
+			var infoTemplate = new InfoTemplate("Details", "${*}");
+              var featureLayer = new FeatureLayer(layer, {
+                infoTemplate: infoTemplate
+              });
+              
+              featureLayer.on('click', function (event) {
+                map.infoWindow.setFeatures([event.graphic]);
+              });
+              changeRenderer(featureLayer);
+              fullExtent = fullExtent ?
+                fullExtent.union(featureLayer.fullExtent) : featureLayer.fullExtent;
+              layers.push(featureLayer);
+            });
+            map.addLayers(layers);
+            map.setExtent(fullExtent.expand(1.25), true);
+
+          }
+          
+		  function changeRenderer (layer) {
+            //change the default symbol for the feature collection for polygons and points
+            var symbol = null;
+            switch (layer.geometryType) {
+              case 'esriGeometryPoint':
+                symbol = new PictureMarkerSymbol({
+                  'angle': 0,
+                  'xoffset': 0,
+                  'yoffset': 0,
+                  'type': 'esriPMS',
+                  'url': 'https://static.arcgis.com/images/Symbols/Shapes/BluePin1LargeB.png',
+                  'contentType': 'image/png',
+                  'width': 20,
+                  'height': 20
+                });
+                break;
+              case 'esriGeometryPolygon':
+                symbol = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+                  new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+                    new Color([112, 112, 112]), 1), new Color([136, 136, 136, 0.25]));
+                break;
+            }
+            if (symbol) {
+              layer.setRenderer(new SimpleRenderer(symbol));
+            }
+
+}
+ });</script>
+ </html>
+ 
+    

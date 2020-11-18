@@ -25,18 +25,89 @@ library(rgdal)
 library(leaflet)
 
 
-dir<-paste(getwd(),"/mapas", sep = "", collapse = NULL)
+dir<-paste(getwd(),"./mapas/mapa_barrios_usado", sep = "", collapse = NULL)
 print(dir)
 
-cc <- readOGR( 
+barriosShape <- readOGR( 
   dsn= dir,
   layer="Barrio_Vereda",
   verbose=TRUE
 )
 
-leaflet(width = "100%")%>% addTiles(attribution = "overlay data© mapsnigeriainitiative 2016")%>% setView(-75.60272578, 6.21901553, 11) %>%  # add the default basemap along with setting the view (lng, lat) and initial zoom 
-   addPolygons(data = cc, fill=TRUE, stroke = TRUE, color = "red", popup = paste0("Name:",cc$NOMBRE,"<br>", "Pop:", cc$total))
+geoData<-read.csv("Jorge/convertirGeodata/geoDataframe_cluster.csv",sep =';')
 
+barriosShape@data<-geoData
+
+#writeOGR(cc, "./mapas/mapa_barrios_usado", "Barrio_Vereda", driver="ESRI Shapefile") #also you were missing the driver argument
+
+
+leaflet(width = "100%")%>% addTiles(attribution = "overlay data© mapsnigeriainitiative 2016")%>% setView(-75.60272578, 6.21901553, 11) %>%  # add the default basemap along with setting the view (lng, lat) and initial zoom 
+   addPolygons(data = barriosShape, fill=TRUE, stroke = TRUE, color = "red", popup = paste0("Barrio:", barriosShape$NOMBRE,"<br>", "CLUSTER:", barriosShape$CLUSTER))
+
+b<-barriosShape@data
+#write.csv(b,"geoDataframe.csv", row.names = FALSE)
+
+print(class(barriosShape))
+#print("esto")
+#b<-cc@data
+
+
+```
+
+
+
+###Vamos a crear variables categoricas para colorear
+```{r}
+library(dplyr)
+barriosShape$numerica <- as.numeric(barriosShape@data$CLUSTER)
+# Variable categorica
+barriosShape$numerica <- case_when(barriosShape$numerica == 0 ~ "Estado feo", barriosShape$numerica == 1 ~ "Estado regular", barriosShape$numerica == 2 ~ "Estado bonito", barriosShape$numerica == 3 ~ "Estado hermoso")
+```
+```{r}
+library('BBmisc')
+#dat <- barriosShape.numerica(x = rnorm(10, 30, .2), y = runif(10, 3, 5))
+norm<-normalize(barriosShape$numerica, method = "standardize", range = c(0, 1), margin = 1L, on.constant = "quiet")
+
+
+```
+###Vamos a crear la paleta de colores
+
+```{r}
+library(viridis)  # paletas de colores
+palnumeric <- colorNumeric("viridis", c(0,4))
+```
+###POP up
+```{r}
+popup <- paste0("<b>", "Nombre estado: ", "</b>", as.character(barriosShape$NOMBRE), 
+    "<br>", "<b>", "Capital: ", "</b>", as.character("hola"), "<br>", 
+    "<b>", "Area: ", "</b>", "dsa", "<br>", "<b>", 
+    "Num. Aleatorio ", "</b>", "specify_decimal", "<br>", "<b>", 
+    "Tipo de Estado: ", "</b>", "dasd", "<br>")
+```
+###Creat mapa
+
+```{r}
+
+
+
+leaflet(barriosShape) %>%
+  # Opcion para anadir imagenes o mapas de fondo (tiles)
+  setView(-75.60272578, 6.21901553, 11) %>%
+  # Funcion para agregar poligonos
+  addPolygons(color = "#444444" ,
+              weight = 1, 
+              smoothFactor = 0.5,
+              opacity = 1.0,
+              fillOpacity = 0.5,
+              fillColor = ~palnumeric(barriosShape$numerica),    # Color de llenado
+              highlightOptions = highlightOptions(color = "white", weight = 2,
+                                                  bringToFront = TRUE), #highlight cuando pasas el cursor
+              label = ~barriosShape$NOMBRE ,                                  # etiqueta cuando pasas el cursor
+              labelOptions = labelOptions(direction = "auto"),
+              popup = popup) %>%                                        # mostrar el popup
+  
+  addLegend(position = "topright", pal = palnumeric, values = ~as.integer( barriosShape$numerica),
+            title = "Suerte del Estado")  
 ```
 
 
