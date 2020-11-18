@@ -34,20 +34,13 @@ barriosShape <- readOGR(
   verbose=TRUE
 )
 
-geoData<-read.csv("Jorge/convertirGeodata/geoDataframe_temporal.csv",sep =';')
+#geoData<-read.csv("Jorge/convertirGeodata/geoDataframe_temporal.csv",sep =';')
 
-barriosShape@data<-geoData
+#barriosShape@data<-geoData
 
 #writeOGR(cc, "./mapas/mapa_barrios_usado", "Barrio_Vereda", driver="ESRI Shapefile") #also you were missing the driver argument
 
-
-leaflet(width = "100%")%>% addTiles(attribution = "overlay data© mapsnigeriainitiative 2016")%>% setView(-75.60272578, 6.21901553, 11) %>%  # add the default basemap along with setting the view (lng, lat) and initial zoom 
-   addPolygons(data = barriosShape, fill=TRUE, stroke = TRUE, color = "red", popup = paste0("Barrio:", barriosShape$NOMBRE,"<br>", "CLUSTER:", barriosShape$CLUSTER))
-
-b<-barriosShape@data
-#write.csv(b,"geoDataframe.csv", row.names = FALSE)
-
-print(class(barriosShape))
+#print(class(barriosShape))
 #print("esto")
 #b<-cc@data
 
@@ -59,10 +52,10 @@ print(class(barriosShape))
 ###Vamos a crear variables categoricas para colorear
 ```{r}
 library(dplyr)
-barriosShape$numerica <- as.numeric(barriosShape@data$CLUSTER)
+barriosShape$numerica <- as.numeric(barriosShape$CLUSTER)
 
 # Variable categorica
-barriosShape$categorica <- case_when(barriosShape$numerica == 0 ~ "peligro moderado", barriosShape$numerica == 1 ~ "peligro bajo", barriosShape$numerica == 2 ~ "peligro alto", barriosShape$numerica == 3 ~ "no agrupado")
+barriosShape$categorica <- case_when(barriosShape$numerica == 1 ~ "peligro moderado", barriosShape$numerica == 0 ~ "peligro bajo", barriosShape$numerica == 2 ~ "peligro alto", barriosShape$numerica == 3 ~ "no agrupado")
 ```
 ```{r}
 library('BBmisc')
@@ -77,14 +70,54 @@ library('BBmisc')
 ```{r}
 library(viridis)  # paletas de colores
 palnumeric <- colorNumeric("viridis", c(0,3))
+palnumeric <- colorNumeric(c("aliceblue","brown4"), 0:2)
+
 ```
 ###POP up
 ```{r}
-popup <- paste0("<b>", "Nombre del barrio: ", "</b>", as.character(barriosShape$NOMBRE), 
+popup <- paste0("<style> div.leaflet-popup-content {width:auto !important;}</style>","<b>", "Nombre del barrio: ", "</b>", as.character(barriosShape$NOMBRE), 
     "<br>", "<b>", "Capital: ", "</b>", as.character("hola"), "<br>", 
     "<b>", "Area: ", "</b>", "dsa", "<br>", "<b>", 
     "Num. Aleatorio ", "</b>", "specify_decimal", "<br>", "<b>", 
-    "Grupo al que pertenece: ", "</b>", as.character(barriosShape$categorica), "<br>")
+    "Grupo al que pertenece: ", "</b>", as.character(barriosShape$categorica), "<br>",
+"<table>", "<tr>",
+    "<th>","tipo","</th>",
+    "<th>","atropello","</th>",
+    "<th>","caida ocupante","</th>",
+    "<th>","choque","</th>",
+    "<th>","otro","</th>",
+    "<th>","volcamiento","</th>",
+  "</tr>",
+    "<th>","promedio","</th>",
+    "<td>","cantidadatropello","</td>",
+    "<td>","cantidad caida ocupante","</td>",
+    "<td>","cant choque","</td>",
+    "<td>","cant otro","</td>",
+    "<td>","cant volca","</td>",
+  "</tr>",
+
+
+"</table>",
+"<table>", "<tr>",
+    "<th>","tipo","</th>",
+    "<th>","atropello","</th>",
+    "<th>","caida ocupante","</th>",
+    "<th>","choque","</th>",
+    "<th>","otro","</th>",
+    "<th>","volcamiento","</th>",
+  "</tr>",
+    "<th>","promedio","</th>",
+    "<td>","cantidadatropello","</td>",
+    "<td>","cantidad caida ocupante","</td>",
+    "<td>","cant choque","</td>",
+    "<td>","cant otro","</td>",
+    "<td>","cant volca","</td>",
+  "</tr>",
+
+
+"</table>"
+
+)
 ```
 ###Creat mapa
 
@@ -110,26 +143,5 @@ leaflet(barriosShape) %>%
 
 ```
 
-
-```{r}
-# Ejemplo marcador
-library(leaflet)
-m <- leaflet() %>%
-  addTiles() %>%  # Añade por defecto los Tiles de  OpenStreetMap
-  addMarkers(lng=-5.664112384, lat=40.96500844, popup="Plaza Mayor de Salamanca")
-m  # Imprime el mapa
-1
-2
-3
-4
-5
-6
-# Ejemplo marcador
-library(leaflet)
-m <- leaflet() %>%
-  addTiles() %>%  # Añade por defecto los Tiles de  OpenStreetMap
-  addMarkers(lng=-75.60272578, lat=6.21901553, popup="Plaza Mayor de Salamanca")
-m  # Imprime el mapa
-```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
