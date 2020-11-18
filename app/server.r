@@ -7,6 +7,8 @@ library(lubridate)
 library(shinyWidgets)
 library("httr")
 library("jsonlite")
+library(rgdal)
+library(leaflet)
 
 ###### Desactivar notacion cientifica
 options(scipen=999,enconding = 'UTF-8')
@@ -53,7 +55,19 @@ shinyServer(function(input, output, session){
   
   
   #### CLUSTERING ####
+  output$map_cluster <- renderLeaflet({
+    #dir<-paste(getwd(),"/mapas", sep = "", collapse = NULL)
   
+    dir <- "mapas/"
+    cc <- readOGR( 
+      dsn= dir,
+      layer="Barrio_Vereda",
+      verbose=TRUE
+    )
+    
+    leaflet(width = "100%")%>% addTiles(attribution = "overlay data© mapsnigeriainitiative 2016")%>% setView(-75.60272578, 6.21901553, 11) %>%  # add the default basemap along with setting the view (lng, lat) and initial zoom 
+      addPolygons(data = cc, fill=TRUE, stroke = TRUE, color = "red", popup = paste0("Name:",cc$NOMBRE,"<br>", "Pop:", cc$total))
+  })
   
   #### PREDICTIVO ####
   base <- "https://jor45458.pythonanywhere.com/Predictor/predecir/"

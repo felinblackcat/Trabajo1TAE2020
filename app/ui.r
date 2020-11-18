@@ -3,6 +3,7 @@ library(shinydashboard)
 library(plotly)
 library(shinyBS)
 library(shinyWidgets)
+library(leaflet)
 options(scipen=999,enconding = 'UTF-8')
 
 header <- dashboardHeader(title = "AccidentApp")
@@ -28,7 +29,8 @@ body <- dashboardBody(
     
     
     tabItem("clustering",
-            fluidRow(div(id="div-example",infoBoxOutput("example-infobox")))
+            fluidRow(div(id="div-example",infoBoxOutput("example-infobox"))),
+            fluidRow(leafletOutput("map_cluster"))
             ),
     tabItem("inicio",
             fluidRow(
