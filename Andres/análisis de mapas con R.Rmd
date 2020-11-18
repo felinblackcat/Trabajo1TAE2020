@@ -1,0 +1,78 @@
+---
+title: "Breve introducción los mapas en R con leaflet"
+author: "Juan David Ospina Arango "
+date: "16 de febrero de 2018"
+output:
+  html_document: default
+  html_notebook: default
+---
+
+```{r echo=FALSE}
+setwd("~/Docencia estadística/Agrupamiento/Trabajo")
+```
+
+En este documento se muestra rápidamente como utilizar mapas en R a partir de archivos shapefile. Se ilustra con los barrios de la ciudad de Medellín y se presenta también una solución a un problema de codificación de texto que causa problemas con la visualización de los nombres de los barrios.
+
+En el [enlace](https://geomedellin-m-medellin.opendata.arcgis.com/) de la Alcaldía de Medellín, en la rúbrica de "Ordenamiento territorial" se encuentra disponible el archivo [Barrio Vereda](https://geomedellin-m-medellin.opendata.arcgis.com/datasets/c844f0fd764f41b2a808d8747457de8a_4). Este archivo es la base para lo que se hará a continuación. Se debe descomprimir y ubicar en una carpeta.
+
+Se utilizarán los paquetes *rgdal*, *leaflet* y *raster*:
+
+
+```{r message=FALSE}
+library(rgdal)
+library(leaflet)
+library(raster)
+```
+
+A continuación se lee el archivo utilizando la función *shapefile*:
+
+```{r}
+barrios_med <- shapefile("Shape/Barrio_Vereda.shp",encoding="UTF-8",use_iconv=TRUE)
+```
+
+Este archivo es un *shapefile* y es una de las estructuras en las que puede utilizarse información proveniente de los sistemas de información geografíca (GIS por sus siglas en inglés). Los parámetros *encoding="UTF-8"* y *use_iconv=TRUE* sirven para traer la información con la codificación correcta para R Markdown (que es UTF8). Si no se incluyeran estos parámetros los caracteres especiales no serían reconocidos correctamente.
+
+Ahora se muestra la lista de los barrios (solo los primeros 20):
+```{r}
+head(barrios_med@data$NOMBRE,20)
+```
+
+
+
+Ahora que los nombres de barrios y veredas fueron correctamente leídos se procede a hacer un mapa simple:
+
+```{r}
+m<-leaflet(barrios_med)
+m<-addProviderTiles(m,provider="OpenStreetMap.Mapnik")
+m
+```
+
+Ahora se superponen los barrios:
+```{r}
+m<-addPolygons(m,popup=barrios_med@data$NOMBRE,weight = 1)
+# weight controla el grosor de la línea.
+m
+```
+
+Ahora se le pone el color a los barrios de manera aleatoria. Imagínese que se tienen los barrios agrupados por características que se denominan naranja, verde y amarillo. Estas características se asignan aleatoriamente:
+
+```{r}
+colores<-sample(x=c("orange","green","yellow"),size=length(barrios_med@data$NOMBRE),replace=TRUE)
+```
+
+Ahora veamos el mapa con estos colores:
+```{r}
+m<-addPolygons(m,popup=barrios_med@data$NOMBRE,color=colores,weight = 1)
+m
+```
+
+Para aprender más sobre sistemas de información geográfica se recomienda:
++ [Enlace a wikipedia sobre GIS](https://en.wikipedia.org/wiki/Geographic_information_system)
+
+Para aprender más sobre leaflet y sus aplicaciones:
+
++ [Leaflet for R](https://rstudio.github.io/leaflet/)
++ [The leaflet package for online mapping in R](https://www.r-bloggers.com/the-leaflet-package-for-online-mapping-in-r/)
++ [Creating a Leaflet choropleth map with a pop-up in R](https://rpubs.com/walkerke/leaflet_choropleth)
++ [ggmap: Spatial Visualization with ggplot2](https://journal.r-project.org/archive/2013-1/kahle-wickham.pdf)
++ [Making Maps with R](http://eriqande.github.io/rep-res-web/lectures/making-maps-with-R.html): muestra cómo hacer mapas con ggplot.

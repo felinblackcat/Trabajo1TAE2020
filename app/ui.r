@@ -3,6 +3,7 @@ library(shinydashboard)
 library(plotly)
 library(shinyBS)
 library(shinyWidgets)
+library(leaflet)
 options(scipen=999,enconding = 'UTF-8')
 
 header <- dashboardHeader(title = "AccidentApp")
@@ -23,7 +24,10 @@ body <- dashboardBody(
   tabItems(
     tabItem("clustering",
             fluidRow(div(id="div-example",infoBoxOutput("example-infobox")))
+            #,fluidRow(leafletOutput("map_cluster"))
             ),
+    
+    
     tabItem("inicio",
             fluidRow(
               navbarPage("AccidentApp V0.1",
@@ -43,11 +47,13 @@ body <- dashboardBody(
     tabItem("descriptivo",
             fluidRow(),
             
+            
     ),
     tabItem("predictivo",
             fluidRow(box(h4("Ventana Temporal"))),
             fluidRow(box(dateInput("fecha_inicio", "Inicio:",startview = "decade"),width=4),box(dateInput("fecha_fin", "Fin:",startview = "decade"),width = 4)),
-            fluidRow(box(selectInput("Resoluciontemporal", "Resoluciontemporal:",c("Dia" = "d","Mes" = "m","Semana" = "s")),width=4)),
+            fluidRow(box(selectInput("resolucion_temporal", "Resoluciontemporal:",c("Dia" = "d","Mes" = "m","Semana" = "s")),width=4)),
+            fluidRow(infoBoxOutput("example_output_pred"))
            
             
     )
