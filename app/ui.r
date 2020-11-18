@@ -16,7 +16,6 @@ sidebar <- dashboardSidebar(
               menuItem('Analisis Descriptivo',tabName='descriptivo',icon = icon("chart-bar")),
               menuItem('Segmentacion de Barrios',tabName='clustering',icon = icon("chart-pie")),
               menuItem('Prediccion de Accidentalidad',tabName='predictivo',icon = icon("brain"))
-              
   
               )
   )
@@ -32,7 +31,9 @@ body <- dashboardBody(
             fluidRow(div(id="div-example",infoBoxOutput("example-infobox")))
             ),
     tabItem("inicio",
-            fluidRow(),
+            fluidRow(
+              box(HTML('<iframe width="560" height="315" src="https://www.youtube.com/embed/49X6QTnhyPM" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'))
+            ),
                      
     ),
     tabItem("datos",

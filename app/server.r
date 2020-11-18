@@ -5,6 +5,8 @@ library(readxl)
 library(lubridate)
 #library(shinyalert)
 library(shinyWidgets)
+library("httr")
+library("jsonlite")
 
 ###### Desactivar notacion cientifica
 options(scipen=999,enconding = 'UTF-8')
@@ -54,9 +56,13 @@ shinyServer(function(input, output, session){
   
   
   #### PREDICTIVO ####
+  base <- "https://jor45458.pythonanywhere.com/Predictor/predecir/"
+  get_request <- GET(base)
+  print(get_request)
+  #get_request_json <- fromJSON(get_request, flatten = TRUE)
+  #get_prices_text <- content(get_request, "text")
   
-  
-  
+  print(input$Predecir)
   #EXAMPLE INFOBOX
   output$example_infobox <- renderInfoBox({valueBox('Example',100,icon = icon("gavel"),color = "blue")})
 
