@@ -40,77 +40,7 @@ summary(datos)
 ```
 # ANÁLISIS GRÁFICO DE LA ACCIDENTALIDAD:
 
-```{r}
 
-plot(datos$PERIODO,datos$GRAVEDAD)
-```
-
-```{r}
-plot(datos$DIA_NOMBRE,datos$GRAVEDAD)
-``` 
-
-```{r}
-install.packages("stx","zoo","TTR")
-library(plotly)
-library(quantmod)
-
-``` 
-```{r}
-df<-data.frame(Date=index(datos),coredata(datos))
-df<-tail(df,10000)
-df$GRAVEDAD<-seq.int(nrow(df))
-
-accumulate_by<-function(dat,var){
-  var<-lazyeval::f_eval(var,dat)
-  lvls <- plotly:::getLevels(var)
-  dats <- lapply(seq_along(lvls), function(x) {
-    cbind(dat[var %in% lvls[seq(1, x)], ], frame = lvls[[x]])
-  })
-  dplyr::bind_rows(dats)
-}
-
-df <- df %>% accumulate_by(~CLASE)
-fig <- df %>% plot_ly(
-  x = ~GRAVEDAD, 
-  y = ~MES_NOMBRE, 
-  frame = ~frame,
-  type = 'scatter', 
-  mode = 'lines', 
-  fill = 'tozeroy', 
-  fillcolor='rgba(114, 186, 59, 0.5)',
-  line = list(color = 'rgb(114, 186, 59)'),
-  text = ~paste("CLASE:","<br>MES"), 
-  hoverinfo = 'text'
-)
-fig <- fig %>% layout(
-  title = "PROMEDIO POR CLASE DE ACCIDENTE",
-  yaxis = list(
-    title = "", 
-    range = c(0,200), 
-    zeroline = F,
-    tickprefix = ""
-  ),
-  xaxis = list(
-    title = "CLASE", 
-    range = c(0,251), 
-    zeroline = F, 
-    showgrid = F
-  )
-) 
-fig <- fig %>% animation_opts(
-  frame = 2, 
-  transition = 0.002, 
-  redraw = FALSE
-)
-fig <- fig %>% animation_slider(
-  currentvalue = list(
-    prefix = "CLASE: "
-  )
-)
-
-fig
-
-```
 ```{r}
 datos%>%ggplot(aes(y=GRAVEDAD, x=DIA_NOMBRE, fill=GRAVEDAD))+geom_bar(stat = "identity")
 ```
