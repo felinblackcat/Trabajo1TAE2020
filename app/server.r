@@ -9,6 +9,7 @@ library("httr")
 library("jsonlite")
 library(rgdal)
 library(leaflet)
+library(lubridate)
 
 ###### Desactivar notacion cientifica
 options(scipen=999,enconding = 'UTF-8')
@@ -55,35 +56,48 @@ shinyServer(function(input, output, session){
   
   
   #### CLUSTERING ####
-  output$map_cluster <- renderLeaflet({
-    #dir<-paste(getwd(),"/mapas", sep = "", collapse = NULL)
-  
-    dir <- "mapas/"
-    cc <- readOGR( 
-      dsn= dir,
-      layer="Barrio_Vereda",
-      verbose=TRUE
-    )
-    
-    leaflet(width = "100%")%>% addTiles(attribution = "overlay data© mapsnigeriainitiative 2016")%>% setView(-75.60272578, 6.21901553, 11) %>%  # add the default basemap along with setting the view (lng, lat) and initial zoom 
-      addPolygons(data = cc, fill=TRUE, stroke = TRUE, color = "red", popup = paste0("Name:",cc$NOMBRE,"<br>", "Pop:", cc$total))
-  })
+
   
   #### PREDICTIVO ####
   base <- "https://jor45458.pythonanywhere.com/Predictor/predecir/"
-  get_request <- GET(base)
-  datos <- list(
-    fecha_inicial = "2014-01-20",
-    fecha_final = "2014-02-20",
-    #d -> dia; m -> mes; s -> semana
-    resoluciontemporal = "d",
+  fecha_inicio = reactive({input$fecha_inicio})
+  
+  output$example_output_pred = reactive({
     
-    #variable constante
-    Modelo = "RF"
-  )
-  res <- POST("https://jor45458.pythonanywhere.com/Predictor/predecir/", body = datos, encode = "json")
-  res <- content(res)
-  print(res)
+    get_request <- GET(base)
+    datos <- list(
+      fecha_inicial = input$fecha_inicio,
+      fecha_final = input$fecha_fin,
+      #d -> dia; m -> mes; s -> semana
+      resoluciontemporal = input$resolucion_temporal,
+      
+      #variable constante
+      Modelo = "RF"
+    )
+    res <- POST("https://jor45458.pythonanywhere.com/Predictor/predecir/", body = datos, encode = "json")
+    res <- content(res)
+    print("PREDICCIOOOOOOOOOON")
+    print(res)
+    renderInfoBox({valueBox(paste(res),100,icon = icon("gavel"),color = "blue")})
+    
+    
+  })
+
+  
+  
+  # get_request <- GET(base)
+  # datos <- list(
+  #   fecha_inicial = "2014-01-20",
+  #   fecha_final = "2014-02-20",
+  #   #d -> dia; m -> mes; s -> semana
+  #   resoluciontemporal = "d",
+  #   
+  #   #variable constante
+  #   Modelo = "RF"
+  # )
+  # res <- POST("https://jor45458.pythonanywhere.com/Predictor/predecir/", body = datos, encode = "json")
+  # res <- content(res)
+  # print(res)
   
   
   #get_request_json <- fromJSON(get_request, flatten = TRUE)
