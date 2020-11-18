@@ -17,7 +17,7 @@ library("gridExtra")
 ```
 
 ```{r}
-datos <- read.csv("C:/Users/ANA GAONA/OneDrive/Escritorio/Trabajo1TAE2020/datos_proscesados.csv")
+datos <- read.csv("../datos_proscesados.csv")
 ```
 
 # vISTA DE LOS DATOS
