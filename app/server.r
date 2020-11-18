@@ -72,11 +72,24 @@ shinyServer(function(input, output, session){
   #### PREDICTIVO ####
   base <- "https://jor45458.pythonanywhere.com/Predictor/predecir/"
   get_request <- GET(base)
-  print(get_request)
+  datos <- list(
+    fecha_inicial = "2014-01-20",
+    fecha_final = "2014-02-20",
+    #d -> dia; m -> mes; s -> semana
+    resoluciontemporal = "d",
+    
+    #variable constante
+    Modelo = "RF"
+  )
+  res <- POST("https://jor45458.pythonanywhere.com/Predictor/predecir/", body = datos, encode = "json")
+  res <- content(res)
+  print(res)
+  
+  
   #get_request_json <- fromJSON(get_request, flatten = TRUE)
   #get_prices_text <- content(get_request, "text")
   
-  print(input$Predecir)
+  
   #EXAMPLE INFOBOX
   output$example_infobox <- renderInfoBox({valueBox('Example',100,icon = icon("gavel"),color = "blue")})
 
