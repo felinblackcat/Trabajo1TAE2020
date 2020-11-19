@@ -5,8 +5,8 @@ account: jemirandas
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3263308
-bundleId: 3879402
+bundleId: 3879677
 url: https://jemirandas.shinyapps.io/AccidentApp/
-when: 1605771337.25509
+when: 1605777080.11952
 asMultiple: FALSE
 asStatic: FALSE

@@ -58,6 +58,7 @@ barriosShape$numerica <- as.numeric(barriosShape@data$CLUSTER)
 #sasa<-barriosShape$numerica2
 library(viridis)  # paletas de colores
 palnumeric <- colorNumeric("viridis", barriosShape$numerica)
+a<-barriosShape$numerica
 
 #palnumeric <- colorNumeric(c("aliceblue","brown4"), 0:2)
 palfac <- colorFactor("RdBu",barriosShape$numerica)

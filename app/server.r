@@ -43,12 +43,11 @@ mapa_barrios_2 <- function(){
   
   barriosShape@data<-geoData
   
-  barriosShape$numerica <- as.numeric(barriosShape@data$CLUSTER)
-  palnumeric <- colorNumeric(c("aliceblue","brown4"), 0:3)
+  barriosShape$numerica <- as.numeric(geoData$CLUSTER)
+  palnumeric <- colorNumeric("viridis", barriosShape$numerica)
   
   #palnumeric <- colorNumeric(c("aliceblue","brown4"), 0:2)
-  #palfac <- colorFactor("RdBu",barriosShape$numerica)
-  
+  palfac <- colorFactor("viridis",barriosShape$numerica)
   # Variable categorica
   barriosShape$categorica <- case_when(barriosShape$numerica == 3 ~ "no agrupado", barriosShape$numerica == 1 ~ "peligro bajo", barriosShape$numerica == 0 ~ "peligro medio", barriosShape$numerica == 2 ~ "peligro alto")
   sdaojdosjadoa<-barriosShape$categorica
@@ -107,7 +106,9 @@ mapa_barrios_2 <- function(){
                                                     bringToFront = TRUE), #highlight cuando pasas el cursor
                 label = ~barriosShape$NOMBRE ,                                  # etiqueta cuando pasas el cursor
                 labelOptions = labelOptions(direction = "auto"),
-                popup = popup)%>%addTiles(attribution = "overlay data mapsnigeriainitiative 2016")
+                popup = popup)%>%addTiles(attribution = "overlay data mapsnigeriainitiative 2016")%>% 
+                addLegend(position = "bottomleft", pal = palfac, values = ~barriosShape$categorica, 
+                title = "Clasificacion de barrio")
   
 }
 
