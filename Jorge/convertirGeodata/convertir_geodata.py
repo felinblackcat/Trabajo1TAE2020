@@ -15,7 +15,8 @@ def diccionario_quitar_tildes(col):
 
 data_completo=pd.read_csv('../../datos_proscesados.csv',sep=',',encoding='utf8')
 data_completo = data_completo.apply(lambda x: x.str.strip() if(x.dtype == "str") else x)
-
+data_analizar=data_completo
+data_analizar=data_analizar[data_analizar['PERIODO']<=2018]
 data_clustering =  pd.read_excel("../../Andres/cluster/clustering.xlsx")
 data_clustering=data_clustering[['BARRIO','cluster']]
 data_clustering = data_clustering.apply(lambda x: x.str.strip() if(x.dtype == "str") else x)
@@ -68,13 +69,20 @@ data=data[['OBJECTID', 'CODIGO','NOMBRE',
            'SUBTIPO_BA', 'NOMBRE_COM', 'SHAPEAREA', 'SHAPELEN']]
 #print(data.columns)
 #data.to_csv('geoDataframe_funciona.csv',sep=',',encoding='utf8',index=False)
-joindata['CLUSTER_CORREGIDO']=3
+joindata['CLUSTER_CORREGIDO']=0
 joindata.loc[joindata.CLUSTER ==  0, 'CLUSTER_CORREGIDO']=1
-joindata.loc[joindata.CLUSTER ==  1, 'CLUSTER_CORREGIDO']=0
-joindata.loc[joindata.CLUSTER ==  2, 'CLUSTER_CORREGIDO']=2
+joindata.loc[joindata.CLUSTER ==  1, 'CLUSTER_CORREGIDO']=2
+joindata.loc[joindata.CLUSTER ==  2, 'CLUSTER_CORREGIDO']=3
+joindata=joindata.drop('CLUSTER',axis=1)
 
 joindata['CLUSTER']=joindata['CLUSTER_CORREGIDO']
 joindata=joindata.drop('CLUSTER_CORREGIDO',axis=1)
+
+
+#data_analizar
+
+#dumies = pd.get_dummies(data_analizar.CLASE)
+
 
 
 
