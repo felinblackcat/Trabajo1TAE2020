@@ -1,0 +1,76 @@
+---
+title: "TAE"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Leyendo Datos csv
+
+```{r}
+datos <- read.table("datos_proscesados.csv",
+                    dec=".",sep=",", header=TRUE)
+```
+Los datos se ven así:
+
+```{r}
+head(datos)
+```
+## Filtro de datos
+Se omitiran las columnas: X,Y,OBJECTID,RADICADO,FECHA,DIRECCION_ENC,diseno,x_magnamed,y_magnamed
+shape, aux_b, aux_c
+```{r}
+library(dplyr)
+FiltroColumnas <-select(datos,LONGITUD,LATITUD,PERIODO,MES,DIA,HORA,CLASE,DIRECCION,CBML,TIPO_GEOCOD,GRAVEDAD,BARRIO,COMUNA)
+FiltroColumnas
+```
+
+# Organizacion data
+- Se genera semilla,generan datos de entrenamiento y validacion.  
+```{r}
+library(caret)
+
+set.seed(2020)
+DatosEntrenamiento  <- filter(FiltroColumnas,PERIODO <=2017)
+DatosValidacion <- filter(FiltroColumnas,PERIODO == 2018)
+
+DataEntrenamiento <- group_by(DatosEntrenamiento,PERIODO,MES,DIA,BARRIO) %>% count(CLASE)
+names(DataEntrenamiento)[names(DataEntrenamiento) == 'n'] <- 'CantidadAccidentesPorTipo'
+altavista <- filter(DataEntrenamiento,BARRIO=='altavista',CLASE=='atropello')
+dataCluster <- group_by(altavista,PERIODO,MES) %>% count(CantidadAccidentesPorTipo)
+
+altvalidation <- filter(DatosValidacion,BARRIO=='altavista',CLASE=='atropello')
+Datavalidation <- group_by(altvalidation,PERIODO,MES) %>% count(CLASE)
+Datavalidation <- select(Datavalidation,PERIODO,MES,n)
+Datavalidation
+dt <-  select(dataCluster,PERIODO,MES,n)
+
+```
+```{r}
+ctrl<-trainControl(method = "CV",number =5)
+modelo_entrenamiento<-train(n ~ PERIODO+MES,
+             data       = dt,
+             method     = "knn",
+             preProcess = c("center","scale"),
+             tuneGrid   = expand.grid(k = 1:12),
+             trControl  = ctrl,
+             metric     = "RMSE")
+```
+
+
+```{r}
+barrios <- distinct(datos,BARRIO)
+taccidente <- distinct(datos,CLASE)
+for(i in barrios){
+  for(j in taccidente){
+    print(paste(i,j))
+    }
+}
+datos<-cbind(datos,casa)
+```
+
+
+

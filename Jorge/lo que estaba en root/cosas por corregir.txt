@@ -1,0 +1,15 @@
+
+Tareas pendientes:
+hacer front (formulario donde el usuario ingresa el rango de fecha y resolucion temp)
+visualizacion mapa
+historico por tipo accidente
+anexar graficas sobre analisis exploratorio
+anexar datos personales
+hacer readme repositorio
+si queda tiempo hacer documentacion bacana
+poner la linea de los mapas mas delgadas
+que el video se vea desde la pagina
+
+
+ideas para mejorar (prioridad -1)
+agregar semana a la prediccion por meses

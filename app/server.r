@@ -78,7 +78,7 @@ mapa_barrios_2 <- function(){
                   "<th>","MUERTOS","</th>",
                   "<th>","HERIDOS","</th>",
                   "<th>","SOLO_DANOS","</th>",
-                  
+                  "	<h4>caracteristicas del grupo",as.character(barriosShape$categorica),"</h4>",
                   "</tr>",
                   "<th>","PROMEDIO/MES","</th>",
                   "<td>",round(as.numeric(barriosShape$ACCIDENTES),2),"</td>",
