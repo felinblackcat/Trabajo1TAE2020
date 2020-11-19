@@ -23,8 +23,7 @@ sidebar <- dashboardSidebar(
 body <- dashboardBody(
   tabItems(
     tabItem("clustering",
-            fluidRow(div(id="div-example",infoBoxOutput("example-infobox")))
-            #,fluidRow(leafletOutput("map_cluster"))
+            fluidRow(leafletOutput("map_cluster"))
             ),
     
     
@@ -45,7 +44,8 @@ body <- dashboardBody(
             
     ),
     tabItem("descriptivo",
-            fluidRow(),
+            fluidRow(infoBoxOutput("example_infobox")),
+            fluidRow()
             
             
     ),
@@ -53,7 +53,7 @@ body <- dashboardBody(
             fluidRow(box(h4("Ventana Temporal"))),
             fluidRow(box(dateInput("fecha_inicio", "Inicio:",startview = "decade"),width=4),box(dateInput("fecha_fin", "Fin:",startview = "decade"),width = 4)),
             fluidRow(box(selectInput("resolucion_temporal", "Resoluciontemporal:",c("Dia" = "d","Mes" = "m","Semana" = "s")),width=4)),
-            fluidRow(infoBoxOutput("example_output_pred"))
+            fluidRow(infoBoxOutput("atropello"))
            
             
     )
