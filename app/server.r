@@ -13,9 +13,10 @@ library(lubridate)
 knitr::opts_chunk$set(echo = TRUE)
 library('BBmisc')
 library(viridis)  # paletas de colores
+set.seed(19990)
 
 ###### Desactivar notacion cientifica
-options(scipen=999,enconding = 'UTF-8')
+#options(scipen=999,enconding = 'UTF-8')
 
 #### CONSTANTES ####
 
@@ -27,6 +28,90 @@ AMARILLO = 'rgb(255, 192, 0)'
 
 COLORES = c(GRIS,AZUL,AMARILLO)
 
+mapa_barrios_2 <- function(){
+  
+  dir<-paste(getwd(),"./mapas/mapa_barrios_usado", sep = "", collapse = NULL)
+  print(dir)
+  
+  barriosShape <- readOGR( 
+    dsn= dir,
+    layer="Barrio_Vereda",
+    verbose=TRUE
+  )
+  
+  geoData<-read.csv("mapas/geoDataframe_definitivo.csv",sep =';')
+  
+  barriosShape@data<-geoData
+  
+  barriosShape$numerica <- as.numeric(barriosShape@data$CLUSTER)
+  palnumeric <- colorNumeric("viridis", barriosShape$numerica)
+  
+  #palnumeric <- colorNumeric(c("aliceblue","brown4"), 0:2)
+  palfac <- colorFactor("RdBu",barriosShape$numerica)
+  
+  # Variable categorica
+  barriosShape$categorica <- case_when(barriosShape$numerica == 3 ~ "no agrupado", barriosShape$numerica == 1 ~ "peligro bajo", barriosShape$numerica == 0 ~ "peligro medio", barriosShape$numerica == 2 ~ "peligro alto")
+  sdaojdosjadoa<-barriosShape$categorica
+  
+  popup <- paste0("<style> div.leaflet-popup-content {width:auto !important;}</style>",
+                  "<b>","Nombre del barrio: ", "</b>", as.character(barriosShape$NOMBRE), 
+                  "<br><b>Grupo al que pertenece: ", "</b>", as.character(barriosShape$categorica), "<br>",
+                  "<table>", "<tr>",
+                  "<th>","TIPO","</th>",
+                  "<th>","ATROPELLO","</th>",
+                  "<th>","CAIDA OCUPANTE","</th>",
+                  "<th>","CHOQUE","</th>",
+                  "<th>","OTRO","</th>",
+                  "<th>","VOLCAMIENTO","</th>",
+                  "</tr>",
+                  "<th>","PROMEDIO/DIA","</th>",
+                  "<td>",round(as.numeric(barriosShape$atropello),2),"</td>",
+                  "<td>",round(as.numeric(barriosShape$caidaocupante),2),"</td>",
+                  "<td>",round(as.numeric(barriosShape$choque),2),"</td>",
+                  "<td>",round(as.numeric(barriosShape$otro),2),"</td>",
+                  "<td>",round(as.numeric(barriosShape$volcamiento),2),"</td>",
+                  "</tr>",
+                  "</table>",
+                  "<br>",
+                  "<table>", "<tr>",
+                  "<th>","ACCIDENTES","</th>",
+                  "<th>","MUERTOS","</th>",
+                  "<th>","HERIDOS","</th>",
+                  "<th>","SOLO_DANOS","</th>",
+                  
+                  "</tr>",
+                  "<th>","PROMEDIO/MES","</th>",
+                  "<td>",round(as.numeric(barriosShape$ACCIDENTES),2),"</td>",
+                  "<td>",round(as.numeric(barriosShape$MUERTO),2),"</td>",
+                  "<td>",round(as.numeric(barriosShape$HERIDO),2),"</td>",
+                  "<td>",round(as.numeric(barriosShape$SOLO_DANOS),2),"</td>",
+                  
+                  "</tr>",
+                  "</table>"
+                  
+                  
+  )
+
+
+  leaflet(barriosShape) %>%
+    # Opcion para anadir imagenes o mapas de fondo (tiles)
+    setView(-75.60272578, 6.21901553, 12) %>%
+    # Funcion para agregar poligonos
+    addPolygons(color = "#444444" ,
+                weight = 1, 
+                smoothFactor = 0.5,
+                opacity = 1.0,
+                fillOpacity = 0.5,
+                fillColor = ~palnumeric(barriosShape$numerica),    # Color de llenado
+                highlightOptions = highlightOptions(color = "white", weight = 2,
+                                                    bringToFront = TRUE), #highlight cuando pasas el cursor
+                label = ~barriosShape$NOMBRE ,                                  # etiqueta cuando pasas el cursor
+                labelOptions = labelOptions(direction = "auto"),
+                popup = popup)%>%addTiles(attribution = "overlay data mapsnigeriainitiative 2016")%>% 
+    addLegend(position = "bottomleft", pal = palfac, values = ~barriosShape$categorica, 
+              title = "Clasificacion de barrio")
+  
+}
 
 mapa_barrios <- function(){
   dir<-paste(getwd(),"./mapas/mapa_barrios_usado", sep = "", collapse = NULL)
@@ -154,7 +239,7 @@ shinyServer(function(input, output, session){
   
   #### CLUSTERING ####
 
-  output$map_cluster <- renderLeaflet({mapa_barrios()})
+  output$map_cluster <- renderLeaflet({mapa_barrios_2()})
   #EXAMPLE INFOBOX
   output$example_infobox <- renderInfoBox({valueBox('Example',100,icon = icon("gavel"),color = "blue")})
   

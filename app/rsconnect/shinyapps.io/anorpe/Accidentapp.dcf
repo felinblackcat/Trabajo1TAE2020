@@ -5,8 +5,8 @@ account: anorpe
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3196730
-bundleId: 3839289
+bundleId: 3878921
 url: https://anorpe.shinyapps.io/Accidentapp/
-when: 1604956079.34422
+when: 1605764327.9544
 asMultiple: FALSE
 asStatic: FALSE
