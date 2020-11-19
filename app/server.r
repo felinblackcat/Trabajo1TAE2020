@@ -11,8 +11,8 @@ library(rgdal)
 library(leaflet)
 library(lubridate)
 knitr::opts_chunk$set(echo = TRUE)
-library('BBmisc')
-library(viridis)  # paletas de colores
+#library('BBmisc')
+#library(viridis)  # paletas de colores
 set.seed(19990)
 
 ###### Desactivar notacion cientifica
@@ -30,7 +30,7 @@ COLORES = c(GRIS,AZUL,AMARILLO)
 
 mapa_barrios_2 <- function(){
   
-  dir<-paste(getwd(),"./mapas/mapa_barrios_usado", sep = "", collapse = NULL)
+  dir<-"./mapas/mapa_barrios_usado"
   print(dir)
   
   barriosShape <- readOGR( 
@@ -39,15 +39,15 @@ mapa_barrios_2 <- function(){
     verbose=TRUE
   )
   
-  geoData<-read.csv("mapas/geoDataframe_definitivo.csv",sep =';')
+  geoData<-read.csv("./mapas/geoDataframe_definitivo.csv",sep =';')
   
   barriosShape@data<-geoData
   
   barriosShape$numerica <- as.numeric(barriosShape@data$CLUSTER)
-  palnumeric <- colorNumeric("viridis", barriosShape$numerica)
+  palnumeric <- colorNumeric(c("aliceblue","brown4"), 0:3)
   
   #palnumeric <- colorNumeric(c("aliceblue","brown4"), 0:2)
-  palfac <- colorFactor("RdBu",barriosShape$numerica)
+  #palfac <- colorFactor("RdBu",barriosShape$numerica)
   
   # Variable categorica
   barriosShape$categorica <- case_when(barriosShape$numerica == 3 ~ "no agrupado", barriosShape$numerica == 1 ~ "peligro bajo", barriosShape$numerica == 0 ~ "peligro medio", barriosShape$numerica == 2 ~ "peligro alto")
@@ -107,14 +107,12 @@ mapa_barrios_2 <- function(){
                                                     bringToFront = TRUE), #highlight cuando pasas el cursor
                 label = ~barriosShape$NOMBRE ,                                  # etiqueta cuando pasas el cursor
                 labelOptions = labelOptions(direction = "auto"),
-                popup = popup)%>%addTiles(attribution = "overlay data mapsnigeriainitiative 2016")%>% 
-    addLegend(position = "bottomleft", pal = palfac, values = ~barriosShape$categorica, 
-              title = "Clasificacion de barrio")
+                popup = popup)%>%addTiles(attribution = "overlay data mapsnigeriainitiative 2016")
   
 }
 
 mapa_barrios <- function(){
-  dir<-paste(getwd(),"./mapas/mapa_barrios_usado", sep = "", collapse = NULL)
+  dir<-"./mapas/mapa_barrios_usado"
   print(dir)
   
   barriosShape <- readOGR( 
@@ -128,8 +126,8 @@ mapa_barrios <- function(){
   # Variable categorica
   barriosShape$categorica <- case_when(barriosShape$numerica == 1 ~ "peligro moderado", barriosShape$numerica == 0 ~ "peligro bajo", barriosShape$numerica == 2 ~ "peligro alto", barriosShape$numerica == 3 ~ "no agrupado")
   
-  palnumeric <- colorNumeric("viridis", c(0,3))
-  palnumeric <- colorNumeric(c("aliceblue","brown4"), 0:2)
+  #palnumeric <- colorNumeric("viridis", c(0,4))
+  palnumeric <- colorNumeric(c("aliceblue","brown4"), 0:3)
   
   popup <- paste0("<style> div.leaflet-popup-content {width:auto !important;}</style>","<b>", "Nombre del barrio: ", "</b>", as.character(barriosShape$NOMBRE), 
                   "<br>", "<b>", "Capital: ", "</b>", as.character("hola"), "<br>", 
@@ -215,10 +213,10 @@ shinyServer(function(input, output, session){
   ####### BASES DE DATOS #######  
   
   #Datos Procesados
-  datos_procesados <- read_excel("data/datos_procesados.xlsx",sheet=1)
+  datos_procesados <- read.csv("./data/datos_procesados.csv",sep = ",")
   datos_procesados <- select(datos_procesados,FECHA,BARRIO,CLASE,GRAVEDAD,LONGITUD,LATITUD)
   #Clustering
-  clustering <- read_excel("data/clustering.xlsx",sheet=1)
+  clustering <- read.csv("./data/clustering.csv",sep=";")
 
 
   ######## SALIDA ##########
