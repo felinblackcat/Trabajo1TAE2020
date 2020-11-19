@@ -23,6 +23,7 @@ sidebar <- dashboardSidebar(
 body <- dashboardBody(
   tabItems(
     tabItem("clustering",
+            fluidRow(infoBoxOutput("cluster_1"),infoBox("cluster_2"),infoBox("Cluster_3")),
             fluidRow(leafletOutput("map_cluster"))
             ),
     
