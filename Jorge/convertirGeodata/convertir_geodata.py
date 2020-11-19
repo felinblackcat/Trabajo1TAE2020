@@ -69,10 +69,10 @@ data=data[['OBJECTID', 'CODIGO','NOMBRE',
            'SUBTIPO_BA', 'NOMBRE_COM', 'SHAPEAREA', 'SHAPELEN']]
 #print(data.columns)
 #data.to_csv('geoDataframe_funciona.csv',sep=',',encoding='utf8',index=False)
-joindata['CLUSTER_CORREGIDO']=0
-joindata.loc[joindata.CLUSTER ==  0, 'CLUSTER_CORREGIDO']=1
-joindata.loc[joindata.CLUSTER ==  1, 'CLUSTER_CORREGIDO']=2
-joindata.loc[joindata.CLUSTER ==  2, 'CLUSTER_CORREGIDO']=3
+joindata['CLUSTER_CORREGIDO']=3
+joindata.loc[joindata.CLUSTER ==  0, 'CLUSTER_CORREGIDO']=0
+joindata.loc[joindata.CLUSTER ==  1, 'CLUSTER_CORREGIDO']=1
+joindata.loc[joindata.CLUSTER ==  2, 'CLUSTER_CORREGIDO']=2
 joindata=joindata.drop('CLUSTER',axis=1)
 
 joindata['CLUSTER']=joindata['CLUSTER_CORREGIDO']
