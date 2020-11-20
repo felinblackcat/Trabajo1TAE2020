@@ -188,7 +188,7 @@ shinyServer(function(input, output, session){
     
     
   )%>%
-    layout(title='Proporcion de Accidentes por'
+    layout(title='Proporcion de Accidentes'
     )})
   
   output$tabla <- renderUI({

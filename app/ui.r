@@ -14,6 +14,7 @@ sidebar <- dashboardSidebar(
   
   sidebarMenu(id = 'sidebarmenu',
               menuItem('Inicio',tabName='inicio',icon = icon("home")),
+              menuItem('Tutorial',tabName='tutorial',icon = icon("leanpub")),
               menuItem('Datos',tabName='datos',icon = icon("database")),
               #menuItem('Analisis Descriptivo',tabName='descriptivo',icon = icon("chart-bar")),
               menuItem('Segmentacion de Barrios',tabName='clustering',icon = icon("chart-pie")),
@@ -27,6 +28,9 @@ body <- dashboardBody(
 
     tabItem("inicio",
             fluidRow(box(HTML('<iframe width="100%" height="500" src="https://www.youtube.com/embed/49X6QTnhyPM" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'),width = 32))
+    ),
+    tabItem("tutorial",
+            fluidRow(box(HTML('<iframe width="100%" height="500" src="https://www.youtube.com/embed/XxRDVkToqh8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'),width = 32))
     ),
     tabItem("datos",
             fluidRow(box(h4("Ventana Temporal"),dateInput("fecha_inicio_datos", "Inicio:",startview = "decade",value = '2010-10-10'),dateInput("fecha_fin_datos", "Fin:",startview = "decade"),downloadButton("downloadData", "Descargar"), width = 6   ), box(plotlyOutput("torta_datos")%>%withSpinner(color="blue")) ),
